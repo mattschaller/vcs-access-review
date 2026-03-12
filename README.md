@@ -4,7 +4,7 @@ SOC2 CC6.3 requires quarterly access reviews. Every engineering leader and secur
 
 `vcs-access-review` queries your GitHub org's full member roster — roles, team memberships, repo-level admin grants, and last-activity proxy — and renders it as an auditor-ready Markdown, CSV, or JSON report. One command, once per quarter.
 
-No SaaS subscription. No connector setup. No enterprise pricing. Just `npx` and a GitHub token.
+No SaaS subscription. No connector setup. No enterprise pricing. Just `npx` and a token.
 
 ## Why this exists
 
@@ -27,9 +27,17 @@ npx vcs-access-review run --org your-org --token ghp_...
 
 ## Usage
 
+### GitHub
+
 ```bash
 export GITHUB_TOKEN="ghp_..."
 vcs-access-review run --org your-org
+```
+
+### Bitbucket Cloud
+
+```bash
+vcs-access-review run --org your-workspace --provider bitbucket --token "user@example.com:app_password"
 ```
 
 This produces a file like `access-review-your-org-2026-03-12.md` in the current directory.
@@ -38,40 +46,56 @@ This produces a file like `access-review-your-org-2026-03-12.md` in the current 
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--org <org>` | GitHub org name | required |
-| `--provider <provider>` | VCS provider | `github` |
-| `--token <token>` | GitHub PAT (or `GITHUB_TOKEN` env var) | -- |
+| `--org <org>` | GitHub org or Bitbucket workspace | required |
+| `--provider <provider>` | VCS provider: `github`, `bitbucket` | `github` |
+| `--token <token>` | Auth token (see below) | -- |
 | `--format <fmt>` | Output format: `md`, `csv`, `json` | `md` |
 | `--since <days>` | Inactivity threshold in days | `90` |
 | `--output <dir>` | Output directory | `.` |
 
+### Authentication
+
+**GitHub:** Pass a PAT via `--token` or set the `GITHUB_TOKEN` env var.
+
+**Bitbucket Cloud:** Pass `--token username:app_password` or set the `BITBUCKET_TOKEN` env var in the same format.
+
+Required Bitbucket app password scopes: `account`, `repository:admin`, `team` (for groups).
+
 ### Examples
 
 ```bash
-# Markdown report (default)
+# GitHub — Markdown report (default)
 vcs-access-review run --org acme-corp
 
-# CSV for upload to your GRC tool
+# GitHub — CSV for upload to your GRC tool
 vcs-access-review run --org acme-corp --format csv
 
-# JSON for programmatic use
+# GitHub — JSON for programmatic use
 vcs-access-review run --org acme-corp --format json
 
-# Flag anyone inactive for 30+ days
+# GitHub — Flag anyone inactive for 30+ days
 vcs-access-review run --org acme-corp --since 30
 
-# Write to a reports directory
+# GitHub — Write to a reports directory
 vcs-access-review run --org acme-corp --output ./reports
+
+# Bitbucket Cloud — using --token
+vcs-access-review run --org my-workspace --provider bitbucket --token "user@example.com:app_password"
+
+# Bitbucket Cloud — using env var
+export BITBUCKET_TOKEN="user@example.com:app_password"
+vcs-access-review run --org my-workspace --provider bitbucket
+
 ```
 
 ## What it collects
 
-For every member in your GitHub org:
+For every member in your org/workspace:
 
-1. **Org role** — `owner` or `member`
-2. **Team memberships** — every team and their role within it (maintainer/member)
+1. **Workspace role** — `owner` or `member`
+2. **Group/team memberships** — every team and their role within it
 3. **Direct admin repos** — repos where the user has `admin` access granted directly (not inherited via team)
-4. **Last activity** — days since most recent public event, as an inactivity proxy
+4. **Last activity** — days since last activity (GitHub: public events; Bitbucket: `last_accessed` from permissions API)
 
 ## Report columns
 
@@ -94,10 +118,14 @@ Members are automatically flagged for auditor attention when any of the followin
 
 ## Required token scopes
 
-Your GitHub PAT needs:
-
+**GitHub PAT:**
 - `read:org` — read org members, teams, and memberships
 - `repo` — read repo collaborators and permissions
+
+**Bitbucket app password:**
+- `account` — read workspace members and permissions
+- `repository:admin` — read repo-level permissions
+- `team` — read groups (v1 API)
 
 ## Architecture
 
@@ -114,8 +142,8 @@ The CLI, output formatting, and report structure are identical regardless of pro
 
 ## Roadmap
 
-- **v0.1** — GitHub provider (current)
-- **v0.2** — Bitbucket Cloud provider
+- **v0.1** — GitHub provider
+- **v0.2** — Bitbucket Cloud provider (current)
 - **v0.3** — Comparison diffs between quarterly runs ("who was added/removed?")
 
 ## License

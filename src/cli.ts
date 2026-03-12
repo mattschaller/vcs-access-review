@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { GitHubProvider } from './providers/github.js';
+import { BitbucketProvider, resolveToken as resolveBitbucketToken } from './providers/bitbucket.js';
 import { format as formatMarkdown } from './formatters/markdown.js';
 import { format as formatCsv } from './formatters/csv.js';
 import { format as formatJson } from './formatters/json.js';
@@ -26,7 +27,7 @@ export function createCli(): Command {
   program
     .name('vcs-access-review')
     .description('Generate auditor-ready access review reports from VCS providers')
-    .version('0.1.0');
+    .version('0.2.0');
 
   program
     .command('run')
@@ -38,12 +39,6 @@ export function createCli(): Command {
     .option('--since <days>', 'Inactivity threshold in days', '90')
     .option('--output <dir>', 'Output directory', '.')
     .action(async (opts) => {
-      const token = opts.token || process.env.GITHUB_TOKEN;
-      if (!token) {
-        console.error('Error: --token or GITHUB_TOKEN env var is required');
-        process.exit(1);
-      }
-
       const fmt = opts.format as FormatKey;
       if (!(fmt in formatters)) {
         console.error(`Error: unsupported format "${fmt}". Use md, csv, or json.`);
@@ -56,13 +51,31 @@ export function createCli(): Command {
         process.exit(1);
       }
 
-      if (opts.provider !== 'github') {
-        console.error(`Error: unsupported provider "${opts.provider}". Only "github" is supported in v0.1.`);
+      let token: string | undefined;
+      let provider;
+
+      if (opts.provider === 'bitbucket') {
+        token = resolveBitbucketToken(opts.token) ?? undefined;
+        if (!token) {
+          console.error(
+            'Error: --token username:app_password or BITBUCKET_TOKEN env var is required',
+          );
+          process.exit(1);
+        }
+        provider = new BitbucketProvider(since);
+      } else if (opts.provider === 'github') {
+        token = opts.token || process.env.GITHUB_TOKEN;
+        if (!token) {
+          console.error('Error: --token or GITHUB_TOKEN env var is required');
+          process.exit(1);
+        }
+        provider = new GitHubProvider(since);
+      } else {
+        console.error(`Error: unsupported provider "${opts.provider}". Use "github" or "bitbucket".`);
         process.exit(1);
       }
 
-      const provider = new GitHubProvider(since);
-      console.log(`Fetching members for org "${opts.org}"...`);
+      console.log(`Fetching members for org "${opts.org}" via ${opts.provider}...`);
 
       const members = await provider.getMembers(opts.org, token);
       console.log(`Found ${members.length} members.`);
