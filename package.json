@@ -1,0 +1,49 @@
+{
+  "name": "vcs-access-review",
+  "version": "0.1.0",
+  "description": "Generate auditor-ready access review reports from GitHub orgs. SOC2 CC6.3 quarterly access reviews made easy.",
+  "keywords": [
+    "soc2",
+    "access-review",
+    "github",
+    "compliance",
+    "audit",
+    "cli"
+  ],
+  "license": "MIT",
+  "author": "Matthew Schaller <matt@mattschaller.com>",
+  "type": "module",
+  "bin": {
+    "vcs-access-review": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.0",
+    "commander": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
