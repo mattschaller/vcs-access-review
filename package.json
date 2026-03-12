@@ -11,6 +11,14 @@
     "cli"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattschaller/vcs-access-review"
+  },
+  "bugs": {
+    "url": "https://github.com/mattschaller/vcs-access-review/issues"
+  },
+  "homepage": "https://github.com/mattschaller/vcs-access-review#readme",
   "author": "Matthew Schaller <matt@mattschaller.com>",
   "type": "module",
   "bin": {
