@@ -4,11 +4,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    target-branch: master
+    target-branch: main
     open-pull-requests-limit: 10
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-    target-branch: master
+    target-branch: main
     open-pull-requests-limit: 5
