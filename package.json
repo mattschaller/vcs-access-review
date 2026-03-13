@@ -1,6 +1,6 @@
 {
   "name": "vcs-access-review",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Generate auditor-ready access review reports from GitHub orgs. SOC2 CC6.3 quarterly access reviews made easy.",
   "keywords": [
     "soc2",
