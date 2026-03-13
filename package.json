@@ -42,7 +42,7 @@
     "prepublishOnly": "npm run build && npm run test"
   },
   "dependencies": {
-    "@octokit/rest": "^21.0.0",
+    "@octokit/rest": "^22.0.1",
     "commander": "^13.0.0"
   },
   "devDependencies": {
