@@ -2,35 +2,39 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createCli } from '../src/cli.js';
 
 vi.mock('../src/providers/github.js', () => ({
-  GitHubProvider: vi.fn().mockImplementation(() => ({
-    getMembers: vi.fn().mockResolvedValue([
-      {
-        login: 'alice',
-        displayName: 'Alice',
-        workspaceRole: 'owner',
-        groups: [{ name: 'admins', role: 'maintainer' }],
-        adminRepos: ['repo-a'],
-        lastActiveDays: 5,
-        flagged: false,
-      },
-    ]),
-  })),
+  GitHubProvider: vi.fn().mockImplementation(function () {
+    return {
+      getMembers: vi.fn().mockResolvedValue([
+        {
+          login: 'alice',
+          displayName: 'Alice',
+          workspaceRole: 'owner',
+          groups: [{ name: 'admins', role: 'maintainer' }],
+          adminRepos: ['repo-a'],
+          lastActiveDays: 5,
+          flagged: false,
+        },
+      ]),
+    };
+  }),
 }));
 
 vi.mock('../src/providers/bitbucket.js', () => ({
-  BitbucketProvider: vi.fn().mockImplementation(() => ({
-    getMembers: vi.fn().mockResolvedValue([
-      {
-        login: 'bob',
-        displayName: 'Bob',
-        workspaceRole: 'member',
-        groups: [],
-        adminRepos: [],
-        lastActiveDays: 100,
-        flagged: true,
-      },
-    ]),
-  })),
+  BitbucketProvider: vi.fn().mockImplementation(function () {
+    return {
+      getMembers: vi.fn().mockResolvedValue([
+        {
+          login: 'bob',
+          displayName: 'Bob',
+          workspaceRole: 'member',
+          groups: [],
+          adminRepos: [],
+          lastActiveDays: 100,
+          flagged: true,
+        },
+      ]),
+    };
+  }),
   resolveToken: vi.fn((token?: string) => token || 'mock-bb-token'),
 }));
 
